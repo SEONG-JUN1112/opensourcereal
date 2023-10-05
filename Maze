@@ -1,0 +1,205 @@
+#include <stdio.h>
+
+char move(int x, int y, int m[12][12])
+{
+	int min;
+	int dir = 'L';
+	min = m[x - 1][y];
+	if (min > m[x][y - 1])
+	{
+		dir = 'U';
+		min = m[x][y - 1];
+	}
+	if (min > m[x + 1][y])
+	{
+		dir = 'R';
+		min = m[x + 1][y];
+	}
+	if (min > m[x][y + 1])
+	{
+		dir = 'D';
+	}
+	return dir;
+}
+//어느방향의 수가 가장 작은지 판별하는 함수, 좌표이동 X
+int end(int x, int y, int fake[12][12])
+{
+	int count = 0;
+	if (fake[x][y] / 10 == 1)
+	{
+		if (fake[x - 1][y] == 100)
+		{
+			count++;
+		}
+		if (fake[x][y - 1] == 100)
+		{
+			count++;
+		}
+		if (fake[x + 1][y] == 100)
+		{
+			count++;
+		}
+		if (fake[x][y + 1] == 100)
+		{
+			count++;
+		}	
+
+		if (count == 3)
+		{
+			count = 0;
+			return 100;
+		}
+		else if (count == 4)
+		{
+			count = 0;
+			return 4;
+		}
+		else
+		{
+			count = 0;
+		}
+	}
+}
+//막다른 길 함수
+void moving(int& x, int& y, int fake[12][12])
+{
+	if (move(x, y, fake) == 'L')
+	{
+		x--;
+	}
+	else if (move(x, y, fake) == 'U')
+	{
+		y--;
+	}
+	else if (move(x, y, fake) == 'R')
+	{
+		x++;
+	}
+	else if (move(x, y, fake) == 'D')
+	{
+		y++;
+	}
+}
+//좌표 이동 함수
+int main(void)
+{
+	char map[12][12];
+	int fake[12][12];
+	int inte[12][12];
+	char dir;
+	int x, y;
+	int exit = 0;
+	
+	printf("맵을 입력하세요\n");
+	for (int j = 1; j < 11; j++)
+	{
+		for (int i = 1; i < 11; i++)
+		{
+			scanf_s(" %c", &map[i][j]);//시작은 S 20, 벽은 W 100, 길은 A 10, 종착지는 E 1
+		}
+	}
+	//맵 입력받기
+	for (int j = 1; j < 11; j++)
+	{
+		for (int i = 1; i < 11; i++)
+		{
+			if (map[i][j] == 'S')
+				fake[i][j] = 20;
+			else if (map[i][j] == 'W')
+				fake[i][j] = 100;
+			else if (map[i][j] == 'A')
+				fake[i][j] = 10;
+			else if (map[i][j] == 'E')
+				fake[i][j] = 1;
+		}
+	}
+	//페이크맵 초기화
+	for (int j = 0; j < 12; j++)
+	{
+		for (int i = 0; i < 12; i++)
+		{
+			if ((i == 0) || (i == 12) || (j == 0) || (j == 12))
+			{
+				fake[i][j] = 100;
+			}
+		}
+	}
+	//맵 테두리 초기화
+	for (int j = 1; j < 11; j++)
+	{
+		for (int i = 1; i < 11; i++)
+		{
+			if (fake[i][j] == 20)
+			{
+				x = i;
+				y = j;
+			}
+		}
+	}
+	//시작점 좌표 초기화
+	while (fake[x][y] != 1)
+	{
+		if (end(x, y, fake) == 100)
+		{
+			fake[x][y] = 100;
+		}
+		else
+		{
+			fake[x][y]++;
+		}
+		moving(x, y, fake);
+		int count = 0;
+		for (int j = 1; j < 11; j++)
+		{
+			for (int i = 1; i < 11; i++)
+			{
+				if (fake[i][j] == 100)
+				{
+					count++;
+				}
+			}
+		}
+		if (count == 98)
+		{
+			break;
+		}
+		else
+		{
+			count = 0;
+		}
+	}
+	//길찾기
+	if (fake[x][y] == 1)
+	{
+		printf("수정된 맵\n");
+		for (int j = 1; j < 11; j++)
+		{
+			for (int i = 1; i < 11; i++)
+			{
+				if (fake[i][j] / 10 == 2)//시작지점
+				{
+					printf("S");
+				}
+				else if (fake[i][j] / 10 == 1)//길
+				{
+					printf(" ");
+				}
+				else if (fake[i][j] == 100)//벽
+				{
+					printf("W");
+				}
+				else if (fake[i][j] / 10 == 0)//종착지
+				{
+					printf("E");
+				}
+			}
+			printf("\n");
+		}
+	}
+	//수정된 맵 출력
+	else
+	{
+		printf("길을 찾을 수 없습니다.");
+	}
+	//길찾기 실패
+	return 0;
